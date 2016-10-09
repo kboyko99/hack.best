@@ -1,0 +1,8 @@
+{
+  "name": "dsa",
+  "main": "index.html",
+  "window": {
+  	"frame": false,
+    "transparent": true
+  }
+}

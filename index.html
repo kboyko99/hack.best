@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello World!</title>
+    <style type="text/css">
+    	html, head, body {
+    		margin: 0;
+    		padding: 0;
+    		overflow: hidden;
+    		user-select: none;
+    		-moz-user-select: none;
+    		-webkit-user-select: none;
+    		cursor: default;
+    	}
+		body > * {
+			opacity: 1;
+			overflow: hidden;
+			color: white;
+		}
+		#status, #bar {
+			display: inline-block;
+			box-sizing: content-box;
+			float: left;
+			height: 100%;
+		}
+		#status {
+			vertical-align: middle;
+			width: 48%;
+			padding: 0px 1%;
+			text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+		}
+		#bar {
+			width: 50%;
+		}	
+    </style>
+  </head>
+  <body>
+  	<div id="border" style="position:absolute;top:0;left:0;right:0;bottom:0;background:0;">
+  		<div id="status" style="font-family: 'Segoe UI', 'Consolas', monospace, sans-serif;">
+  		</div>
+  		<div id="bar">
+  			<canvas id="canvas"></canvas>
+  		</div>
+  	</div>
+    <script type="text/javascript" src="jq.js"></script>
+    <script type="text/javascript">
+    	Object.prototype.toString = function () {return JSON.stringify(this)}
+    	Array.prototype.toString = function () {return JSON.stringify(this)}
+    	var host = "https://pure-everglades-50833.herokuapp.com/api/v1/";
+
+    	var gui = require('nw.gui'), win = gui.Window.get();
+    	win.width = screen.width;
+    	win.height = screen.height*0.15;
+    	win.x = 0;
+    	win.y = 0;
+    	win.setAlwaysOnTop(true);
+    	win.setResizable(false);
+    	$("body").width(win.width);
+    	$("body").height(win.height);
+    	$("#status").css("line-height", screen.height*0.15+"px");
+    	$("#status").css("font-size", screen.height*0.05+"px");
+    	var canvas = document.getElementById("canvas");
+    	canvas.width = ~~(screen.width/2/10)*10;
+    	canvas.height = screen.height*0.15;
+    	var ctx = document.getElementById("canvas").getContext("2d");
+		$.ajax(host+"widget").done(renderGraph);
+
+    	document.onkeypress = function (e) {	
+    		if (e.key == "`" || e.key == "~")
+    			win.close(true);
+    	}
+    	var arr = [];
+    	var malt = 150;
+    	function renderGraph(a, b, c) {
+    		console.log("got " + a)
+    		ctx.clearRect(0,0,canvas.width,canvas.height);
+    		if (a.data[0].response === "paused") {
+    			$("#status").html("[PAUSED]");
+    			malt = 0;
+    			return;
+    		}
+    		$("#status").html(a.data[0].current.project_name + " (" + a.data[0].current.speaker_name + ")");
+    		arr.push({likes:a.data[0].current.like,dislikes:a.data[0].current.dislike});
+    		if (arr.length > canvas.width/10)
+    			arr.splice(0, 1);
+
+			ctx.shadowOffsetX = 0;
+			ctx.shadowOffsetY = 0;
+			ctx.shadowBlur = 0;    		
+    		ctx.beginPath();
+    		ctx.moveTo(0,canvas.height);
+    		ctx.lineTo(canvas.width, canvas.height);
+    		ctx.strokeStyle = "#00f";
+    		ctx.lineWidth = 2.5;
+    		ctx.stroke();
+    		ctx.closePath();
+	
+    		ctx.beginPath();
+    		ctx.moveTo(0,0);
+    		ctx.lineTo(canvas.width, 0);
+    		ctx.stroke();
+    		ctx.closePath();
+
+    		//likes
+    		ctx.shadowColor = "#222";
+			ctx.shadowOffsetX = 0;
+			ctx.shadowOffsetY = 1.5;
+			ctx.shadowBlur = 0.5;
+    		ctx.beginPath();
+    		ctx.strokeStyle = "#000";
+    		ctx.lineWidth = 5;
+    		for (var i = arr.length-1; i >= 0; i--) {
+				ctx.lineTo(
+    				canvas.width-i*10, 
+   					canvas.height-arr[i].likes*(canvas.height/alt(arr))
+    			);
+    		}
+			ctx.stroke();
+    		ctx.closePath();
+    		
+    		ctx.beginPath();
+    		ctx.strokeStyle = "#0f0";
+    		ctx.lineWidth = 3;
+    		for (var i = arr.length-1; i >= 0; i--)
+    			ctx.lineTo(
+    				canvas.width-i*10, 
+   					canvas.height-arr[i].likes*(canvas.height/alt(arr))
+    			);
+    		ctx.stroke();
+    		ctx.closePath();
+
+    		//dislikes		
+    		ctx.shadowColor = "#222";
+			ctx.shadowOffsetX = 0;
+			ctx.shadowOffsetY = 1.5;
+			ctx.shadowBlur = 0.5;
+    		ctx.beginPath();
+    		ctx.strokeStyle = "#000";
+    		ctx.lineWidth = 5;
+    		for (var i = arr.length-1; i >= 0; i--) {
+    			ctx.lineTo(
+    				canvas.width-i*10, 
+   					canvas.height-arr[i].dislikes*(canvas.height/alt(arr))
+    			);
+    		}
+    		ctx.stroke();
+    		ctx.closePath();
+    		
+    		ctx.beginPath();
+    		ctx.strokeStyle = "#f00";
+    		ctx.lineWidth = 3;
+    		for (var i = arr.length-1; i >= 0; i--)
+    			ctx.lineTo(
+    				canvas.width-i*10, 
+   					canvas.height-arr[i].dislikes*(canvas.height/alt(arr))
+    			);
+    		ctx.stroke();
+    		ctx.closePath();
+
+    		setTimeout(function () {
+    			$.ajax(host+"widget").done(renderGraph);
+    		}, 250);
+    	};
+    	function alt(arr) {
+    		var mx = null, mn = null;
+       		for (var i = 0 ; i < arr.length; i++) {
+    			if ((mx < arr[i].likes || mx == null))
+    				mx = arr[i].likes;
+    			if ((mn < arr[i].dislikes || mn == null))
+    				mn = arr[i].dislikes;
+    		}
+    		return (mx>mn?mx:mn);
+    	}
+    </script>
+  </body>
+</html>

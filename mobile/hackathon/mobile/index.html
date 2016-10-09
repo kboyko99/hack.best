@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../jquery.mobile-1.4.5.css">
+<!-- <link rel="stylesheet" href="mobile.css"> -->
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="../jquery.mobile-1.4.5.js"></script>
+<link rel="apple-touch-icon" sizes="57x57" href="../apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="../apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="../apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="../apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="../apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="../apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="../apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="../apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="stylesheet" href="../favicon.ico">
+<link rel="manifest" href="../manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<style type="text/css">
+@font-face {
+    font-family: "pantonbold";
+    src: url("fonts/panton-bold.woff") format('woff');
+}
+div[data-role=page]{
+	background: url("images/mhw-bg-2.png") no-repeat fixed center;
+	background-size: 150% 150%;
+}
+div.main{
+	background: url("images/fon-line-dot.png") repeat;
+}
+#presenters, #vote{
+	position: absolute;
+	top: 12%;
+	display: none;
+}
+.head{
+	text-weight: bold;
+	width: 20%;
+}
+#like, #dislike {
+	width:40%;
+	height: auto;
+	position: fixed;
+	left: 30%;
+}
+#showList{
+	position: relative;
+	right: 40%;
+	width: 20%;
+}
+.navbar{
+	position: relative;
+	top: 5%;
+}
+#one{
+	height: 100vh;
+}
+#showPresenters, #vote{
+	position: absolute;
+	right: 7%;
+	width: auto;
+    background-color: rgba(255,255,255,0);
+    color: black;
+    background-image: linear-gradient(0deg, rgba(255,255,0,1) 0%, rgba(255,255,0,1) 50%, rgba(255,255,255,0) 51%);
+    border: none;
+	font-size:20px;
+	font-family: "pantonbold", sans-serif;
+}
+#logo_small{
+	position: relative;
+	top: 25px;
+	left: 7%;
+}
+#currentSpeaker{
+	position: relative;
+	font-size: 20px;
+	top: 55px;
+	margin: auto;
+	max-width: 90%;
+	text-align: center;
+}
+#speaker{
+	font-family: "pantonbold", sans-serif;
+	font-size: 17px;
+	position: relative;
+	top: 10px;
+	color: grey;
+}
+#project{
+	font-family: "pantonbold", sans-serif;
+}
+.cell{
+	position: relative;
+	left: 2%;
+	padding: 5px;
+	font-size: 20px;
+	font-family: "pantonbold", sans-serif;
+}
+.likeSymb{
+	text-align: right;
+	position: relative;
+	right: 2%;
+	font-size: 20px;
+	font-family: "pantonbold", sans-serif;
+}
+#presenters{
+	position: relative;
+	top: 20px;
+	left: 5%;
+	width: 90%;
+	height: auto;
+	border-collapse: collapse;
+}
+tr:nth-child(even) {
+	background-color: rgb(217, 217, 217);
+	color: black;
+}
+input[type=image]:active, :focus{
+	outline: none;
+}
+</style>
+</head>
+
+<body>
+
+<div data-role="page">
+<div class="main">
+	<div data-role="tabs" id="tabs">
+		<div data-role="navbar" ontouch="changeContent()">
+			<img src="images/logo_small.svg" class="navbar" id="logo_small">
+			<a href="#one" data-ajax="false" class="navbar" style="display: none" id="vote"> ← VOTING</a>
+			<a href="#two" data-ajax="false" class="navbar" id="showPresenters">PRESENTERS  → </a>
+		</div>
+		<div id='currentSpeaker'>
+			<b>
+			<span id="project"></span><br>
+		    <span id='speaker'></span></b>
+		</div>
+	</div>
+	<div id="one">
+	    <div id='likes'>
+		    <input type="image" src="images/mhw-b-plus-1.png" alt="Like" id="like" ontouch="like()">
+		    <input type="image" src="images/mhw-b-minus-1.png" alt="Dislike" id="dislike" ontouch="dislike()">
+	    </div>
+	</div>
+	<div id="two" style='display: none'>
+	    <div class="presList">	    
+		  	<table id='presenters'> 
+		  	</table>
+		</div>  
+	  </div>
+	</div>
+
+</div>
+</div>
+<script type="text/javascript">
+var height = window.innerHeight;
+var width = window.innerWidth;
+var radius = (width*0.4)/2;
+var divHeight = height*0.75;
+var margins = (divHeight - radius*4)/3;
+var topMargin = margins+height*0.25;
+console.log(topMargin);
+document.getElementById("like").style = 'top:'+topMargin+'px';
+document.getElementById("dislike").style = 'bottom:'+margins+'px';
+console.log(margins);	
+function changeContent(){
+	if($("#two").css('display') == 'none')
+		showList();
+	else
+		vote();
+}
+document.getElementById("like").addEventListener('touchstart', function(e){
+	this.src = "images/mhw-b-plus-2.png";
+}, false);
+document.getElementById("like").addEventListener('touchend', function(e){
+	this.src = "images/mhw-b-plus-1.png"
+}, false);
+document.getElementById("dislike").addEventListener('touchstart', function(e){
+	this.src = "images/mhw-b-minus-2.png";
+}, false);
+document.getElementById("dislike").addEventListener('touchend', function(e){
+	this.src = "images/mhw-b-minus-1.png"
+}, false);
+
+var requrl = "https://pure-everglades-50833.herokuapp.com/api/v1/";
+
+function getCurrentSpeaker(){
+	$.ajax({
+		method: "GET",
+		url: requrl+"list"
+	})
+	.done(function( msg ) {
+		for(var i = 0; i<msg.data[0].list.length; i++){
+			if(msg.data[0].list[i].active){
+				var maxLength = 45;
+				window.navigator.vibrate(200);
+				var prName = msg.data[0].list[i].project_name;
+				if(prName.length>=maxLength){
+					prName = prName.substring(0,maxLength)+"...";
+				}
+				document.getElementById("project").innerHTML = prName;
+				var spName = msg.data[0].list[i].speaker_name;
+				if(spName.length>=20){
+					spName = spName.substring(0,20)+"...";
+				}
+				document.getElementById("project").innerHTML = prName.toUpperCase();
+				document.getElementById("speaker").innerHTML = spName.toUpperCase();
+ 				return;
+			}
+		}
+		window.navigator.vibrate(200);
+		document.getElementById("project").innerHTML = "PLEASE WAIT:)";
+	});
+}
+
+getCurrentSpeaker();
+setInterval(getCurrentSpeaker(), 1000);
+
+function showList(){
+	window.navigator.vibrate(200);
+	$('table').empty();
+	document.getElementById("likes").style = "display:none";
+	document.getElementById("one").style = "display:none";	
+	document.getElementById("two").style = "display:block";
+	document.getElementById("showPresenters").style = "display:none";
+	document.getElementById("currentSpeaker").style = "display:none";
+	document.getElementById("vote").style = "display:block";
+	var table = document.getElementById("presenters");
+	table.style = "display:block";
+	$.ajax({
+		method: "GET",
+		url: requrl+"list"
+	})
+	.done(function( msg ) {
+		for(var i = 0; i<msg.data[0].list.length; i++){
+			var row = table.insertRow(i);
+			var projectname = row.insertCell(0);
+			var likes = row.insertCell(1);
+			projectname.innerHTML = "<b>"+msg.data[0].list[i].project_name+"</b>" +"<br>"+ msg.data[0].list[i].speaker_name;
+			likes.innerHTML = "<span>+"+msg.data[0].list[i].like+"</span><br><span>-"+msg.data[0].list[i].dislike+"</span>";
+			projectname.className = 'cell';
+			likes.className = 'likeSymb';
+			projectname.style = "width: 70%";
+			if(msg.data[0].list[i].active){
+				row.style = "background-color: rgba(0, 204, 0, 0.2)"
+			}
+		}
+	});
+};
+
+function vote(){
+	window.navigator.vibrate(200);
+	document.getElementById("one").style = "display:block";
+	document.getElementById("two").style = "display:none";
+	document.getElementById("presenters").style = "display:none";
+	document.getElementById("showPresenters").style = "display:block";
+	document.getElementById("likes").style = "display:block";
+	document.getElementById("currentSpeaker").style = "display:block";
+	document.getElementById("vote").style = "display:none";
+	getCurrentSpeaker();
+};
+
+function like(){
+	window.navigator.vibrate(200);
+	$.ajax({
+		method: "POST",
+		url: "https://pure-everglades-50833.herokuapp.com/api/v1/plus"
+	})
+	.done(function( msg ) {
+
+	});
+};
+
+function dislike(){
+	window.navigator.vibrate(200);
+	$.ajax({
+		method: "POST",
+		url: "//https://pure-everglades-50833.herokuapp.com/api/v1/minus"	
+	})
+	.done(function( msg ) {
+
+	});
+};
+</script>
+</body>
+</html>

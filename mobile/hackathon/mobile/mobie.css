@@ -1,0 +1,20 @@
+div[data-role=page]{
+	background-color: blue;
+	background-image: transparent url("images/mhw-bg-2.png");
+    background-width:100%;
+}
+#presentors, #vote{
+	display: none;
+}
+.head{
+	text-weight: bold;
+}
+#like, #dislike {
+	width:30px;
+	height: auto;
+}
+#showList{
+	position: relative;
+	right: 40%;
+	width: 20%;
+}
